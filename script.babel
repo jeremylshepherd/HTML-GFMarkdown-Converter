@@ -1,0 +1,335 @@
+let init = "<div>\n\t<h1>Test Code</h1>\n\t<h2>Testing the Code</h2>\n\t<ul>\n\t\t<li>Stuff</li>\n\t\t<li>More Stuff</li>\n\t\t<li>Stuffy Stuff</li>\n\t</ul>\n\t<ol>\n\t\t<li>Sterf</li>\n\t\t<li>More Sterf</li>\n\t\t<li>Sterfy Sterf</li>\n\t</ol>\n\t<img src=https://farm8.staticflickr.com/7564/15935673038_030f6b5387.jpg\" alt=\"Example_Image\" />\n\t<a href=\"http://www.google.com\">Google</a>\n\t<code>\n\t\t<div>\n\t\t\t<h1>Test Code Block</h1>\n\t\t\t<h2>Testing the ignore Code</h2>\n\t\t</div>\n\t</code>\t\n</div>"
+
+class App extends React.Component {
+  constructor() {
+    super();
+    
+    this.state = {
+      input: init,
+      output: '',
+      preview: false
+    }
+    this.updateInput = this.updateInput.bind(this);
+    this.convertToMD = this.convertToMD.bind(this);
+    this.updatePre = this.updatePre.bind(this);
+  }
+  
+  updateInput(str) {
+    this.setState({input: str});
+    this.convertToMD(str);
+  }
+  
+  updatePre(value) {
+    this.setState({preview: value});
+  }
+  
+  convertToMD(str) {
+    let chunkString = (str, tag) => {
+      let re,
+          placeholder,
+          s,
+          e,
+          l;
+
+      switch(tag) {
+        case 'a':
+          re = /<a.*?>([\s\S]*?)<\/a>/g;
+          placeholder = '|LINK|';
+          s = '<' + tag;
+          e = '</' + tag + '>';
+          l = e.length;
+          break;
+        case 'code':
+          re = /<code.*?>([\s\S]*?)<\/code>/g;
+          placeholder = '|CODE|';
+          s = '<' + tag;
+          e = '</' + tag + '>';
+          l = e.length;
+          break;
+        case 'img':
+          re = /<img.*?\/>/g;
+          placeholder = '|IMG|';
+          s = '<' + tag;
+          e = '/>';
+          l = e.length;
+          break;
+        case 'ul':
+          re = /<ul.*?>([\s\S]*?)<\/ul>/g;
+          placeholder = '|UL|';
+          s = '<' + tag;
+          e = '</' + tag + '>';
+          l = e.length;
+          break;
+        case 'ol':
+          re = /<ol.*?>([\s\S]*?)<\/ol>/g;
+          placeholder = '|OL|';
+          s = '<' + tag;
+          e = '</' + tag + '>';
+          l = e.length;
+          break;
+      }
+
+      let arr = str.match(re);
+
+      for(let i = 0; i < str.length; i++){
+        if(str.indexOf(s) == -1){
+          console.log('break', i);
+          break;
+        }else{
+          str = str.replace(re, placeholder);
+        }
+      }
+        return { str: str, arr: arr, sym: placeholder};            
+    };
+    let easyMDRecode = (str) => {
+      return str
+        .replace(/<h1>/g, '# ')
+        .replace(/<h2>/g, '## ')
+        .replace(/<h3>/g, '### ')
+        .replace(/<h4>/g, '#### ')
+        .replace(/<h5>/g, '##### ')
+        .replace(/<h6>/g, '###### ')
+        .replace(/<\/h1>/g, '')
+        .replace(/<\/h2>/g, '')
+        .replace(/<\/h3>/g, '')
+        .replace(/<\/h4>/g, '')
+        .replace(/<\/h5>/g, '')
+        .replace(/<\/h6>/g, '')
+        .replace(/<strong>/g, '**')
+        .replace(/<\/strong>/g, '**')
+        .replace(/<i>/g, '_')
+        .replace(/<\/i>/g, '_')
+        .replace(/<blockquote>/g, '>')
+        .replace(/<\/blockquote>/g, '');
+    };
+    let stripTags = (str) => {
+      return str
+              .replace(/\t/g, '')
+              .replace(/<.*?>/g, '')
+              .replace(/\/.*?./g, '')
+              .replace(/\n/, '');
+    };    
+    let imgMD = (obj) => {
+      let nwStr = obj.str,
+          arr = obj.arr;
+
+      let noir = arr.map(function(r) {
+          console.log(r);
+          var data = {};
+          var el = document.createElement('div');
+          el.innerHTML = r;
+          var img = el.childNodes[0];
+          console.log(img);
+          data.src = img.getAttribute('src');
+          data.alt = img.getAttribute('alt');
+          return data;
+      });
+    
+        for(var k = 0; k < noir.length; k++) {        
+            var sub = '![' + noir[k].alt + '](' + noir[k].src + ')';
+            nwStr = nwStr.replace('|IMG|', sub);        
+        }    
+        return nwStr;
+    };
+    let listMD = (obj) => {
+      let nwStr = obj.str,
+          arr = obj.arr,
+          u = '|UL|',
+          o = '|OL|',
+          ol = ' 1. ',
+          ul = ' * ';
+
+      for(let i = 0; i < arr.length; i++) {
+        if(arr[i][1] == 'o'){
+          let sub = arr[i].replace(/<ol>/, '').replace(/<\/ol>/, '').replace(/<li>/g, ol).replace(/<\/li>/g, '');
+          nwStr = nwStr.replace('|OL|', sub);
+        }else if(arr[i][1] == 'u'){
+          let sub2 = arr[i].replace(/<ul>/, '').replace(/<\/ul>/, '').replace(/<li>/g, ul).replace(/<\/li>/g, '');
+          nwStr = nwStr.replace('|UL|', sub2);
+        }        
+      }
+      return nwStr;
+    };
+    let linkMD = (obj) => {
+      let nwStr = obj.str,
+          arr = obj.arr;
+
+      let noir = arr.map(function(r) {
+          var data = {};
+          var el = document.createElement('div');
+          el.innerHTML = r;
+          var a = el.childNodes[0];
+          data.href = a.getAttribute('href');
+          data.text = a.textContent;
+          return data;
+      });
+    
+        for(var k = 0; k < noir.length; k++) {        
+            var sub = '[' + noir[k].text + '](' + noir[k].href + ')';
+            nwStr = nwStr.replace('|LINK|', sub);        
+        }    
+        return nwStr;
+    };
+    
+    let codeMD = (obj) => {
+        let nwStr = obj.str,
+            arr = obj.arr,
+            c = '|CODE|',
+            l = c.length;
+        for(let i = 0; i < arr.length; i++) {
+            let sub = arr[i].replace(/<code>/, '`').replace(/<\/code/, '`').replace(/\n/, '');
+            nwStr = nwStr.replace('|CODE|', sub);
+        }
+        return nwStr;
+    };
+    
+    str = easyMDRecode(str);
+    let img = chunkString(str, 'img');
+    let ul = chunkString(img.str, 'ul');
+    let ol = chunkString(ul.str, 'ol');
+    let code = chunkString(ol.str, 'code');
+    let link = chunkString(code.str, 'a');
+    str = link.str;
+    str = stripTags(str);
+    img.str = str;
+    str = imgMD(img);
+    ul.str = str;
+    str = listMD(ul);
+    ol.str = str;
+    str = listMD(ol);
+    link.str = str;
+    str = linkMD(link);
+    code.str = str;
+    str = codeMD(code);
+       
+    this.setState({
+      output: str
+    });
+  }
+  
+  componentDidMount() {
+    let str = JSON.parse(JSON.stringify(this.state.input));
+    this.convertToMD(str);
+  }
+  
+  render() {
+    return (
+      <div> 
+        <Header />
+        <div className="container">
+          <div className="row">
+            <InputArea input={this.state.input} update={this.updateInput}/>
+            <OutputArea output={this.state.output} preview={this.updatePre} show={this.state.preview}/>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+class Header extends React.Component {
+  render() {
+    return (
+      <nav className="navbar navbar-default navbar-static-top">
+        <div className="container">
+          <h2 className="center">HTML to <i>(Github)</i> Markdown Converter</h2>
+        </div>
+      </nav>
+    );
+  }
+}
+
+class InputArea extends React.Component {
+  constructor(props) {
+    super(props);
+    
+    this.update = this.update.bind(this);
+    this.inTab = this.inTab.bind(this);
+  }
+  
+  update(e) {
+    let target = e.target;
+    let name = target.name;
+    let value = target.value;
+    this.props.update(value);
+  }
+  
+  inTab(e) {
+    let txt = this.refs.input;
+    let start = txt.selectionStart;
+    let end = txt.selectionEnd;
+    let value = e.target.value;
+    if(e.keyCode == 9) {
+      e.preventDefault();
+      let string = `${value.substring(0, start)}${'\t'}${value.substring(end)}`;
+      e.target.value = string;
+      txt.selectionEnd = start + 1;      
+    }
+  }
+  
+  render() {
+    return (
+      <form className="form-group col-sm-6 col-xs-12">
+        <label className="form-control">HTML</label>
+        <textarea
+          ref='input'
+          name='input'
+          className="form-control col-xs-12"
+          rows="30"
+          value={this.props.input}
+          onKeyDown={this.inTab}
+          onChange={this.update}/>        
+      </form>
+    );
+  }
+}
+
+class OutputArea extends React.Component {
+  constructor(props) {
+    super(props);
+    
+    this.updatePreview = this.updatePreview.bind(this);
+    this.markDownRender = this.markDownRender.bind(this);
+  }
+  
+  updatePreview(e) {
+    let target = e.target;
+    let value = target.checked ? true: false;
+    this.props.preview(value);
+  }
+  
+  markDownRender(){
+    marked.setOptions({
+      renderer: new marked.Renderer(),
+      gfm: true,
+      breaks: true
+    });
+    return { __html: marked(this.props.output, {sanitize: true}) };
+  }
+  
+  render() {
+    let body = !this.props.show ? 
+               (<textarea 
+                  className="form-control col-xs-12"
+                  rows="30"  
+                  value={this.props.output}/>):
+               (<div 
+                  className="col-xs-12 well"
+                  dangerouslySetInnerHTML={this.markDownRender()}/>);
+    let label = this.props.show ? 'PREVIEW' : 'MARKDOWN';
+    return (
+      <form className="form-group col-sm-6 col-xs-12">
+        <label className="form-control">{label}
+          <label className="switch pull-right">
+            <input type="checkbox" onChange={this.updatePreview}/>
+            <div className="slider round"></div>
+          </label>
+        </label>
+        {body}           
+      </form>
+    );
+  }
+}
+
+
+ReactDOM.render(<App />, document.getElementById('app'));
