@@ -106,7 +106,7 @@ class App extends React.Component {
       return str
               .replace(/\t/g, '')
               .replace(/<.*?>/g, '')
-              .replace(/\/.*?./g, '')
+              .replace(/<\/.*?>/g, '')
               .replace(/\n/, '');
     };    
     let imgMD = (obj) => {
@@ -118,7 +118,6 @@ class App extends React.Component {
             var el = document.createElement('div');
             el.innerHTML = r;
             var img = el.childNodes[0];
-            console.log(img);
             data.src = img.getAttribute('src');
             data.alt = img.getAttribute('alt');
             return data;
@@ -180,19 +179,22 @@ class App extends React.Component {
             l = c.length;
         if(arr !== null) {
           for(let i = 0; i < arr.length; i++) {
-              let sub = arr[i].replace(/<code>/, '`').replace(/<\/code/, '`').replace(/\n/, '');
+              let sub = arr[i].replace(/<code>/, '`').replace(/<\/code>/, '`');
+              
               nwStr = nwStr.replace('|CODE|', sub);
           }
         }
         return nwStr;
     };
     
+    let code = chunkString(str, 'code');
+    str = code.str
     str = easyMDRecode(str);
     let img = chunkString(str, 'img');
     let ul = chunkString(img.str, 'ul');
-    let ol = chunkString(ul.str, 'ol');
-    let code = chunkString(ol.str, 'code');
-    let link = chunkString(code.str, 'a');
+    let ol = chunkString(ul.str, 'ol');    
+    let link = chunkString(ol.str, 'a');
+    
     str = link.str;
     str = stripTags(str);
     img.str = str;
