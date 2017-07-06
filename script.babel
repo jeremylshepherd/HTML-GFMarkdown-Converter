@@ -112,23 +112,23 @@ class App extends React.Component {
     let imgMD = (obj) => {
       let nwStr = obj.str,
           arr = obj.arr;
+      if(arr !== null) {
+        let noir = arr.map(function(r) {
+            var data = {};
+            var el = document.createElement('div');
+            el.innerHTML = r;
+            var img = el.childNodes[0];
+            console.log(img);
+            data.src = img.getAttribute('src');
+            data.alt = img.getAttribute('alt');
+            return data;
+        });
 
-      let noir = arr.map(function(r) {
-          console.log(r);
-          var data = {};
-          var el = document.createElement('div');
-          el.innerHTML = r;
-          var img = el.childNodes[0];
-          console.log(img);
-          data.src = img.getAttribute('src');
-          data.alt = img.getAttribute('alt');
-          return data;
-      });
-    
-        for(var k = 0; k < noir.length; k++) {        
-            var sub = '![' + noir[k].alt + '](' + noir[k].src + ')';
-            nwStr = nwStr.replace('|IMG|', sub);        
-        }    
+          for(var k = 0; k < noir.length; k++) {        
+              var sub = '![' + noir[k].alt + '](' + noir[k].src + ')';
+              nwStr = nwStr.replace('|IMG|', sub);        
+          }
+      }
         return nwStr;
     };
     let listMD = (obj) => {
@@ -136,38 +136,40 @@ class App extends React.Component {
           arr = obj.arr,
           u = '|UL|',
           o = '|OL|',
-          ol = ' 1. ',
-          ul = ' * ';
-
-      for(let i = 0; i < arr.length; i++) {
-        if(arr[i][1] == 'o'){
-          let sub = arr[i].replace(/<ol>/, '').replace(/<\/ol>/, '').replace(/<li>/g, ol).replace(/<\/li>/g, '');
-          nwStr = nwStr.replace('|OL|', sub);
-        }else if(arr[i][1] == 'u'){
-          let sub2 = arr[i].replace(/<ul>/, '').replace(/<\/ul>/, '').replace(/<li>/g, ul).replace(/<\/li>/g, '');
-          nwStr = nwStr.replace('|UL|', sub2);
-        }        
+          ol = '1. ',
+          ul = '* ';
+      if(arr !== null) {
+        for(let i = 0; i < arr.length; i++) {
+          if(arr[i][1] == 'o'){
+            let sub = arr[i].replace(/<ol>/, '').replace(/<\/ol>/, '').replace(/<li>/g, ol).replace(/<\/li>/g, '');
+            nwStr = nwStr.replace('|OL|', sub);
+          }else if(arr[i][1] == 'u'){
+            let sub2 = arr[i].replace(/<ul>/, '').replace(/<\/ul>/, '').replace(/<li>/g, ul).replace(/<\/li>/g, '');
+            nwStr = nwStr.replace('|UL|', sub2);
+          }        
+        }
       }
       return nwStr;
     };
     let linkMD = (obj) => {
       let nwStr = obj.str,
           arr = obj.arr;
+      if(arr !== null) {
+        let noir = arr.map(function(r) {
+            var data = {};
+            var el = document.createElement('div');
+            el.innerHTML = r;
+            var a = el.childNodes[0];
+            data.href = a.getAttribute('href');
+            data.text = a.textContent;
+            return data;
+        });
 
-      let noir = arr.map(function(r) {
-          var data = {};
-          var el = document.createElement('div');
-          el.innerHTML = r;
-          var a = el.childNodes[0];
-          data.href = a.getAttribute('href');
-          data.text = a.textContent;
-          return data;
-      });
-    
-        for(var k = 0; k < noir.length; k++) {        
-            var sub = '[' + noir[k].text + '](' + noir[k].href + ')';
-            nwStr = nwStr.replace('|LINK|', sub);        
-        }    
+          for(var k = 0; k < noir.length; k++) {        
+              var sub = '[' + noir[k].text + '](' + noir[k].href + ')';
+              nwStr = nwStr.replace('|LINK|', sub);        
+          }
+      }
         return nwStr;
     };
     
@@ -176,9 +178,11 @@ class App extends React.Component {
             arr = obj.arr,
             c = '|CODE|',
             l = c.length;
-        for(let i = 0; i < arr.length; i++) {
-            let sub = arr[i].replace(/<code>/, '`').replace(/<\/code/, '`').replace(/\n/, '');
-            nwStr = nwStr.replace('|CODE|', sub);
+        if(arr !== null) {
+          for(let i = 0; i < arr.length; i++) {
+              let sub = arr[i].replace(/<code>/, '`').replace(/<\/code/, '`').replace(/\n/, '');
+              nwStr = nwStr.replace('|CODE|', sub);
+          }
         }
         return nwStr;
     };
@@ -199,6 +203,7 @@ class App extends React.Component {
     str = listMD(ol);
     link.str = str;
     str = linkMD(link);
+    str = str.replace(/\t/g, '');
     code.str = str;
     str = codeMD(code);
        
