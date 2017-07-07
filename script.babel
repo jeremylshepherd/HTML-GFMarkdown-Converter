@@ -1,4 +1,7 @@
-let init = "<div>\n\t<h1>Test Code</h1>\n\t<h2>Testing the Code</h2>\n\t<ul>\n\t\t<li>Stuff</li>\n\t\t<li>More Stuff</li>\n\t\t<li>Stuffy Stuff</li>\n\t</ul>\n\t<ol>\n\t\t<li>Sterf</li>\n\t\t<li>More Sterf</li>\n\t\t<li>Sterfy Sterf</li>\n\t</ol>\n\t<img src=https://farm8.staticflickr.com/7564/15935673038_030f6b5387.jpg\" alt=\"Example_Image\" />\n\t<a href=\"http://www.google.com\">Google</a>\n\t<code>\n\t\t<div>\n\t\t\t<h1>Test Code Block</h1>\n\t\t\t<h2>Testing the ignore Code</h2>\n\t\t</div>\n\t</code>\t\n</div>"
+let init = "<div>\n\t<h1>Headline 1</h1>\n\t<h2>Headline 2</h2>\n\t<h3>Headline 3</h3>\n\t<h4>Headline 4</h4>\n\t<h5>Headline 5</h5>\n\t<h6>Headline6</h6>\n\t<p><strong>Bold Text </strong><i>Italic Text</i>\n\t\t<strong><i>BOLD ITALIC</i></strong>\n\t</p>\n\t<ul>\n\t\t<li>Stuff</li>\n\t\t<li>More Stuff</li>\n\t\t<li>Stuffy Stuff</li>\n\t</ul>\n\t<ol>\n\t\t<li>Stuff One</li>\n\t\t<li>Stuff Two</li>\n\t\t<li>Stuff Three</li>\n\t</ol>\n\t<blockquote>Markdown is a way to style text on the web. You control the display of the document; formatting words as bold or italic, adding images, and creating lists are just a few of the things we can do with Markdown. Mostly, Markdown is just regular text with a few non-alphabetic characters thrown in, like # or *.\n</blockquote>\n\t\n\t<img src=https://farm8.staticflickr.com/7564/15935673038_030f6b5387.jpg\" alt=\"Example_Image\" />\n\t<a href=\"http://www.google.com\">Google</a>\n\t<code>\n\t\t<div>\n\t\t\t<h1>Test Code Block</h1>\n\t\t\t<h2>Testing the ignore Code</h2>\n\t\t</div>\n\t</code>\t\n</div>";
+
+
+let combine = "<blockquote>Markdown is a way to style text on the web. You control the display of the document; formatting words as bold or italic, adding images, and creating lists are just a few of the things we can do with Markdown. Mostly, Markdown is just regular text with a few non-alphabetic characters thrown in, like # or *.\n</blockquote>\n\t<img src=https://farm8.staticflickr.com/7564/15935673038_030f6b5387.jpg\" alt=\"Example_Image\" />\n\t<a href=\"http://www.google.com\">Google</a>\n\t<code>\n\t\t<div>\n\t\t\t<h1>Te...";
 
 class App extends React.Component {
   constructor() {
@@ -24,6 +27,7 @@ class App extends React.Component {
   }
   
   convertToMD(str) {
+    console.log(str);
     let chunkString = (str, tag) => {
       let re,
           placeholder,
