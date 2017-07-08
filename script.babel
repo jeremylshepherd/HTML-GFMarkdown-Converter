@@ -27,7 +27,6 @@ class App extends React.Component {
   }
   
   convertToMD(str) {
-    console.log(str);
     let chunkString = (str, tag) => {
       let re,
           placeholder,
